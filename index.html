@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Spark</title>
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+    <script src="./assets/js/jquery-3.2.0.js" charset="utf-8"></script>
+    <script src="./assets/js/vue.js" charset="utf-8"></script>
+    <script>if (window.module) module = window.module;</script>
+    <link rel="stylesheet" href="./assets/master.css">
+    <link rel="stylesheet" href="./assets/fa/css/font-awesome.css">
+  </head>
+  <body>
+    <div class="container">
+      <div class="topBar">
+        <div class="tabs">
+        </div>
+        <div class="actionBar">
+          <div class="navBtn">
+            <i class="fa fa-chevron-left" aria-hidden="true" id="backBtn"></i>
+            <i class="fa fa-chevron-right" aria-hidden="true" id="forwardBtn"></i>
+            <i class="fa fa-home" aria-hidden="true" id="homeBtn"></i>
+            <i class="fa fa-refresh" aria-hidden="true" id="refreshBtn"></i>
+          </div>
+          <input type="text" name="" onClick="this.select();" value="" id="searchBar">
+        </div>
+        <div class="favBar">
+
+        </div>
+      </div>
+      <div class="webBrowser">
+        <div class="tab" v-for="tab in tabs">
+          <webview :id="tab.id" :src="tab.url" style="display:inline-flex; width:100%; height:100%"></webview>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script>
+    onload = () => {
+      var views = [];
+      var webview = document.querySelector('#webView')
+      var curTab = 0;
+      var browser = new Vue({
+        el: '.webBrowser',
+        data: {
+          tabs:[
+            {url: "https://www.google.com", id: "webView"},
+            {url: "https://www.twitch.tv", id:2}
+          ]
+        }
+      })
+
+      const loadstart = () => {
+        console.log("Loading...");
+
+      }
+
+      const newWindow = (event) => {
+        console.log("New page: " + event.url);
+        browser.tabs.push({url: even.url, id:3});
+
+      }
+
+      const loadstop = () => {
+        console.log("Stopped Loading");
+        var pageLoad = webview.getURL();
+        console.log(pageLoad);
+        $('#searchBar').val(pageLoad);
+      }
+
+      webview.addEventListener('did-start-loading', loadstart)
+      webview.addEventListener('did-stop-loading', loadstop)
+      webview.addEventListener('new-window', newWindow)
+      $('#searchBar').keypress(function (e) {
+        if (e.which == 13) {
+          var url = $('#searchBar').val();
+          var finUrl = url;
+          if(url.indexOf('.') < 0 || (url.indexOf('.') == url.lenght || url.indexOf('.') == 0)){
+            finUrl = "https://www.google.com/#q=" + url;
+          }
+          else if(!url.startsWith("http://") && !url.startsWith("https://")){
+            finUrl = "https://" + url;
+          }
+          console.log(finUrl);
+          webview.loadURL(finUrl);
+        }
+      });
+      $('#backBtn').click(function (e) {
+        webview.goBack();
+      });
+      $('#forwardBtn').click(function (e) {
+        webview.goBack();
+      });
+      $('#homeBtn').click(function (e) {
+        webview.loadURL("https://www.google.com");
+      });
+      $('#refreshBtn').click(function (e) {
+        webview.reload();
+      });
+      $( "#webView" ).mousedown(function(event) {
+        console.log(event);
+      });
+
+    }
+  </script>
+</html>
