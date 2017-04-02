@@ -13,14 +13,20 @@
   <body>
     <div class="container">
       <div class="topBar">
-        <div class="tabs">
+        <div class="v-tabs">
+          <div class="v-tab" v-for="tab in tabs">
+            <p>{{tab.name}}</p>
+          </div>
+        </div>
+        <div class="add-tab">
+
         </div>
         <div class="actionBar">
           <div class="navBtn">
             <i class="fa fa-chevron-left" aria-hidden="true" id="backBtn"></i>
             <i class="fa fa-chevron-right" aria-hidden="true" id="forwardBtn"></i>
-            <i class="fa fa-home" aria-hidden="true" id="homeBtn"></i>
             <i class="fa fa-refresh" aria-hidden="true" id="refreshBtn"></i>
+            <i class="fa fa-home" aria-hidden="true" id="homeBtn"></i>
           </div>
           <input type="text" name="" onClick="this.select();" value="" id="searchBar">
         </div>
@@ -37,70 +43,115 @@
   </body>
   <script>
     onload = () => {
-      var views = [];
-      var webview = document.querySelector('#webView')
       var curTab = 0;
+      var bTabs = { tabs:[] };
+      var visualTabs = new Vue({
+        el: '.v-tabs',
+        data: bTabs
+      })
       var browser = new Vue({
         el: '.webBrowser',
-        data: {
-          tabs:[
-            {url: "https://www.google.com", id: "webView"},
-            {url: "https://www.twitch.tv", id:2}
-          ]
-        }
+        data: bTabs
       })
 
-      const loadstart = () => {
+      function newTab(url) {
+        var newId = makeid();
+        bTabs.tabs.push({url: url, id: newId, name: ""});
+        setTimeout(function() {
+          addListeners(newId);
+        }, 500)
+
+      }
+
+      function addListeners(id) {
+        var webview = document.querySelector('#' + id);
+        webview.addEventListener('did-start-loading', loadstart)
+        webview.addEventListener('did-stop-loading', loadstop)
+        webview.addEventListener('did-fail-loading', loadfail)
+        webview.addEventListener('new-window', newWindow)
+      }
+
+      const loadstart = (e) => {
+        console.log(e);
         console.log("Loading...");
+
+      }
+
+      const loadfail = (e) => {
+        console.log(e);
+        console.log("fail");
 
       }
 
       const newWindow = (event) => {
         console.log("New page: " + event.url);
-        browser.tabs.push({url: even.url, id:3});
+        bTabs.tabs.push({url: event.url, id:3, name: ""});
 
       }
 
-      const loadstop = () => {
+      const loadstop = (e) => {
+        console.log(e);
+        var webview = e.srcElement;
+        console.log(webview.id);
+        var index = $.map(bTabs.tabs, function(obj, index) {
+            if(obj.id == webview.id) {
+                return index;
+            }
+        })[0]
         console.log("Stopped Loading");
         var pageLoad = webview.getURL();
+        console.log(index);
+        bTabs.tabs[index].name = webview.getTitle();
         console.log(pageLoad);
         $('#searchBar').val(pageLoad);
       }
 
-      webview.addEventListener('did-start-loading', loadstart)
-      webview.addEventListener('did-stop-loading', loadstop)
-      webview.addEventListener('new-window', newWindow)
+
       $('#searchBar').keypress(function (e) {
         if (e.which == 13) {
           var url = $('#searchBar').val();
           var finUrl = url;
-          if(url.indexOf('.') < 0 || (url.indexOf('.') == url.lenght || url.indexOf('.') == 0)){
+          if((url.indexOf('.') < 0 && url.indexOf(':') < 0)|| (url.indexOf('.') == url.lenght || url.indexOf('.') == 0)){
             finUrl = "https://www.google.com/#q=" + url;
           }
           else if(!url.startsWith("http://") && !url.startsWith("https://")){
             finUrl = "https://" + url;
           }
           console.log(finUrl);
+          var webview = document.querySelector('#' + browser.tabs[curTab].id);
           webview.loadURL(finUrl);
         }
       });
       $('#backBtn').click(function (e) {
+        var webview = document.querySelector('#' + browser.tabs[curTab].id);
         webview.goBack();
       });
       $('#forwardBtn').click(function (e) {
+        var webview = document.querySelector('#' + browser.tabs[curTab].id);
         webview.goBack();
       });
       $('#homeBtn').click(function (e) {
+        var webview = document.querySelector('#' + browser.tabs[curTab].id);
         webview.loadURL("https://www.google.com");
       });
+      $('.add-tab').click(function (e) {
+        newTab("https://www.google.com");
+      });
       $('#refreshBtn').click(function (e) {
+        var webview = document.querySelector('#' + browser.tabs[curTab].id);
         webview.reload();
       });
-      $( "#webView" ).mousedown(function(event) {
-        console.log(event);
-      });
 
+      newTab("https://www.google.com");
+
+      function makeid()
+      {
+        var text = "";
+        var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        for( var i=0; i < 10; i++ )
+            text += possible.charAt(Math.floor(Math.random() * possible.length));
+        return text;
+      }
     }
   </script>
 </html>

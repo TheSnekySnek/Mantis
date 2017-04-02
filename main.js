@@ -13,7 +13,7 @@ let mainWindow
 
 function createWindow () {
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 800, height: 600, frame: true})
+  mainWindow = new BrowserWindow({width: 1170, height: 770, frame: true})
 
   // and load the index.html of the app.
   mainWindow.loadURL(url.format({
@@ -44,6 +44,12 @@ app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') {
     app.quit()
   }
+})
+
+app.on('certificate-error', (event, webContents, url, error, certificate, callback) => {
+  console.log(event);
+  console.log(error);
+  event.preventDefault()
 })
 
 app.on('activate', function () {
