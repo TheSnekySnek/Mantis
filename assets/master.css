@@ -28,6 +28,9 @@ body{
   padding: 7px;
   margin-right: 10px;
 }
+.tab-selected{
+  background-color: #2a2626 !important;
+}
 .tab{
   width: 100%;
   height: 100%;
@@ -35,8 +38,8 @@ body{
 .v-tab{
   width: 170px;
   -webkit-transform: skew(-45deg);
-  background: #2a2626;
-  height: 35px;
+  background-color: #636363;
+  height: 30px;
   float: left;
   margin: 0 5px;
 }
@@ -48,15 +51,70 @@ body{
   -webkit-transform: skew(45deg);
   color: #e7e7e7;
   text-align: center;
-  margin-top: 10px;
+  margin-top: 7px;
+  text-overflow: clip;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 130px;
+  margin-left: 19px;
 }
+.tab-selected > p:before {
+  content:'';
+  width:100%;
+  height:100%;
+  position:absolute;
+  left:0;
+  top:0;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0),129px, #2a2626);
+}
+.v-tab:not(.tab-selected) > p:before {
+  content:'';
+  width:100%;
+  height:100%;
+  position:absolute;
+  left:0;
+  top:0;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0),129px, #636363) !important;
+}
+
 .add-tab{
   width: 30px;
-  height: 35px;
-  background-color: red;
+  height: 30px;
+  background-color: #d0d0d0;
   -webkit-transform: skew(-45deg);
   float: left;
   margin-left: 10px;
+}
+.headBar{
+  height: 20px;
+  width: calc(100% - 135px);
+}
+.w-icons{
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: #545151;
+}
+.w-icons > div{
+  float: left;
+  width: 29px;
+  height: 24px;
+  padding-left: 16px;
+  padding-top: 4px;
+}
+.close-icon:hover{
+  background-color: red !important;
+}
+.w-icons > div:hover{
+  background-color: #e2e2e2;
+}
+.tab-close{
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 20px;
+  height: 30px;
+  background-color: red !important;
 }
 #searchBar{
   height: 24px;

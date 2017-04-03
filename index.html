@@ -6,16 +6,34 @@
     <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
     <script src="./assets/js/jquery-3.2.0.js" charset="utf-8"></script>
     <script src="./assets/js/vue.js" charset="utf-8"></script>
+    <script src="./assets/js/arrive.min.js" charset="utf-8"></script>
     <script>if (window.module) module = window.module;</script>
     <link rel="stylesheet" href="./assets/master.css">
     <link rel="stylesheet" href="./assets/fa/css/font-awesome.css">
   </head>
   <body>
     <div class="container">
+      <div class="w-icons">
+        <div class="min-icon">
+          <i class="fa fa-minus" aria-hidden="true"></i>
+        </div>
+        <div class="max-icon">
+          <i class="fa fa-window-maximize" aria-hidden="true"></i>
+        </div>
+        <div class="close-icon">
+          <i class="fa fa-times" aria-hidden="true"></i>
+        </div>
+      </div>
+      <div class="headBar" style="-webkit-app-region: drag">
+
+      </div>
       <div class="topBar">
         <div class="v-tabs">
-          <div class="v-tab" v-for="tab in tabs">
+          <div :tab-id="tab.id" class="v-tab tab-selected" v-for="tab in tabs">
             <p>{{tab.name}}</p>
+            <div class="tab-close">
+
+            </div>
           </div>
         </div>
         <div class="add-tab">
@@ -43,7 +61,7 @@
   </body>
   <script>
     onload = () => {
-      var curTab = 0;
+      var curTab = "";
       var bTabs = { tabs:[] };
       var visualTabs = new Vue({
         el: '.v-tabs',
@@ -57,19 +75,27 @@
       function newTab(url) {
         var newId = makeid();
         bTabs.tabs.push({url: url, id: newId, name: ""});
-        setTimeout(function() {
-          addListeners(newId);
-        }, 500)
-
+        curTab = newId;
+        displayTab(newId);
       }
 
-      function addListeners(id) {
-        var webview = document.querySelector('#' + id);
+      function displayTab(id) {
+        $('.tab').hide();
+        console.log($('#' + id));
+        $('#' + id).parent().show();
+        $(".v-tab").removeClass("tab-selected")
+        console.log($(".v-tab[tab-id='" + id +"']"));
+        $(".v-tab[tab-id='" + id +"']").addClass("tab-selected")
+        console.log(".v-tab[tab-id='" + id +"']");
+      }
+
+      $(document).arrive("webview", function() {
+        var webview = $(this)[0];
         webview.addEventListener('did-start-loading', loadstart)
         webview.addEventListener('did-stop-loading', loadstop)
         webview.addEventListener('did-fail-loading', loadfail)
         webview.addEventListener('new-window', newWindow)
-      }
+      });
 
       const loadstart = (e) => {
         console.log(e);
@@ -85,7 +111,7 @@
 
       const newWindow = (event) => {
         console.log("New page: " + event.url);
-        bTabs.tabs.push({url: event.url, id:3, name: ""});
+        newTab(event.url);
 
       }
 
@@ -118,28 +144,44 @@
             finUrl = "https://" + url;
           }
           console.log(finUrl);
-          var webview = document.querySelector('#' + browser.tabs[curTab].id);
+          var webview = $('#' + curTab)[0];
           webview.loadURL(finUrl);
         }
       });
       $('#backBtn').click(function (e) {
-        var webview = document.querySelector('#' + browser.tabs[curTab].id);
+        var webview = $('#' + curTab)[0];
         webview.goBack();
       });
       $('#forwardBtn').click(function (e) {
-        var webview = document.querySelector('#' + browser.tabs[curTab].id);
+        var webview = $('#' + curTab)[0];
         webview.goBack();
       });
       $('#homeBtn').click(function (e) {
-        var webview = document.querySelector('#' + browser.tabs[curTab].id);
+        var webview = $('#' + curTab)[0];
         webview.loadURL("https://www.google.com");
       });
       $('.add-tab').click(function (e) {
         newTab("https://www.google.com");
       });
+      $('.v-tabs').on('click', '.v-tab', function() {
+        var tabId = $(this).attr('tab-id');
+        console.log(tabId);
+        displayTab(tabId);
+        curTab = tabId;
+      });
       $('#refreshBtn').click(function (e) {
-        var webview = document.querySelector('#' + browser.tabs[curTab].id);
+        var webview = $('#' + curTab)[0];
         webview.reload();
+      });
+      $('.v-tab').on('click', '.tab-close', function() {
+        console.log("del");
+        console.log("del");
+        console.log("del");
+        console.log("del");
+        var id = $(this).parent().attr('tab-id');
+        console.log(id);
+
+        deleteTab(id);
       });
 
       newTab("https://www.google.com");
@@ -151,6 +193,33 @@
         for( var i=0; i < 10; i++ )
             text += possible.charAt(Math.floor(Math.random() * possible.length));
         return text;
+      }
+
+      const remote = require('electron').remote;
+      $('.min-icon').click(function (e) {
+        var window = remote.getCurrentWindow();
+        window.minimize();
+      });
+      $('.max-icon').click(function (e) {
+        var window = remote.getCurrentWindow();
+        if (!window.isMaximized()) {
+            window.maximize();
+        } else {
+            window.unmaximize();
+        }
+      });
+
+      $('.close-icon').click(function (e) {
+        var window = remote.getCurrentWindow();
+        window.close();
+      });
+      function deleteTab(id) {
+        var index = $.map(bTabs.tabs, function(obj, index) {
+            if(obj.id == id) {
+                return index;
+            }
+        })[0]
+        bTabs.tabs.splice(index, 1);
       }
     }
   </script>
