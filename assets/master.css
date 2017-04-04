@@ -110,11 +110,22 @@ body{
 }
 .tab-close{
   position: absolute;
+  opacity: 0.01;
   top: 0;
   right: 0;
   width: 20px;
   height: 30px;
   background-color: red !important;
+}
+.left-items{
+  position: absolute;
+  width: 125px;
+  height: 30px;
+  font-size: 24px;
+  padding: 0 15px;
+}
+.left-items > i{
+  margin: 0 3px;
 }
 #searchBar{
   height: 24px;
