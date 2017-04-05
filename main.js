@@ -46,10 +46,16 @@ app.on('window-all-closed', function () {
   }
 })
 
+var ignoredDomains[]
+
 app.on('certificate-error', (event, webContents, url, error, certificate, callback) => {
-  console.log(event);
-  console.log(error);
-  event.preventDefault()
+  if (true) {
+    // Verification logic.
+    event.preventDefault()
+    callback(true)
+  } else {
+    callback(false)
+  }
 })
 
 app.on('activate', function () {
