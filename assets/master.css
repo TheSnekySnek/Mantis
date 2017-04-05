@@ -1,4 +1,5 @@
 body{
+  font-family: Segoe UI;
   margin: 0;
   overflow: hidden;
 }
@@ -33,7 +34,9 @@ body{
 }
 .tab{
   width: 100%;
-  height: 100%;
+  height: calc(100vh - 90px);
+  position: absolute;
+  top: 90px;
 }
 .v-tab{
   width: 170px;
@@ -51,12 +54,13 @@ body{
   -webkit-transform: skew(45deg);
   color: #e7e7e7;
   text-align: center;
-  margin-top: 7px;
+  margin-top: 5px;
   text-overflow: clip;
   white-space: nowrap;
   overflow: hidden;
   width: 130px;
   margin-left: 19px;
+  font-size: 15px;
 }
 .tab-selected > p:before {
   content:'';
@@ -123,9 +127,47 @@ body{
   height: 30px;
   font-size: 24px;
   padding: 0 15px;
+  margin-top: -5px;
 }
 .left-items > i{
   margin: 0 3px;
+}
+.suggestions-tab{
+  position: absolute;
+  top: 90px;
+  width: 100%;
+  border-bottom: 1px solid #e8e8e8;
+  z-index: 99;
+  background-color: white;
+  overflow: hidden;
+  height: 0;
+  display: none;
+}
+.suggestion > i{
+  float: left;
+  margin-right: 10px;
+}
+.suggestion{
+  padding-left: 167px;
+  padding-top: 5px;
+  height: 25px;
+  cursor: default;
+}
+.suggestions-tab.act{
+  height: auto;
+  max-height: 185px;
+  display: block;
+}
+.suggestion.sel{
+  background-color: #4795da !important;
+  color: white;
+}
+.suggestion:hover{
+  background-color: #9ad6ff;
+}
+.suggestion > p{
+  margin: 0;
+  margin-top: -3px;
 }
 #searchBar{
   height: 24px;

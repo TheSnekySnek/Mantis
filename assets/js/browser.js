@@ -1,5 +1,6 @@
 onload = () => {
 
+  const auto = require('google-autocomplete');
 
   const storage = require('electron-json-storage');
   storage.set('store', {history: []}, function(error) {
@@ -9,6 +10,7 @@ onload = () => {
 
   var curTab = "";
   var bTabs = { tabs:[] };
+  var webSuggestionsData = {search: "", suggestions: []};
   var visualTabs = new Vue({
     el: '.v-tabs',
     data: bTabs
@@ -18,22 +20,27 @@ onload = () => {
     data: bTabs
   })
 
+  var webSuggestions = new Vue({
+    el: '.suggestions-tab',
+    data: webSuggestionsData
+  })
+
   function newTab(url) {
     var newId = makeid();
-    bTabs.tabs.push({url: url, id: newId, name: ""});
+    bTabs.tabs.push({url: url, id: newId, name: "", tmpUrl: url});
     curTab = newId;
     displayTab(newId);
   }
 
   function displayTab(id) {
-    $('.tab').hide();
-    console.log($('#' + id));
-    $('#' + id).parent().show();
+    $('.tab[web-id="' + id + '"]').css('visibility', 'visible');
+    $('.tab:not([web-id="' + id + '"])').css('visibility', 'hidden');
     curTab = id;
     $(".v-tab").removeClass("tab-selected")
     console.log($(".v-tab[tab-id='" + id +"']"));
     $(".v-tab[tab-id='" + id +"']").addClass("tab-selected")
     console.log(".v-tab[tab-id='" + id +"']");
+    $('#searchBar').val(getUrlById(id));
   }
   $(document).arrive("webview", function() {
     var webview = $(this)[0];
@@ -41,9 +48,12 @@ onload = () => {
     webview.addEventListener('did-stop-loading', loadstop)
     webview.addEventListener('did-fail-loading', loadfail)
     webview.addEventListener('new-window', newWindow)
+
   });
 
   const loadstart = (e) => {
+    $('.suggestions-tab').removeClass("act");
+    webSuggestionsData.suggestions = [];
     console.log("Loading...");
 
   }
@@ -51,13 +61,11 @@ onload = () => {
   const loadfail = (e) => {
     console.log(e);
     console.log("fail");
-
   }
 
   const newWindow = (event) => {
     console.log("New page: " + event.url);
     newTab(event.url);
-
   }
 
   const loadstop = (e) => {
@@ -92,13 +100,91 @@ onload = () => {
     });
     console.log(index);
     bTabs.tabs[index].name = webview.getTitle();
+    bTabs.tabs[index].tmpUrl = pageLoad;
     console.log(pageLoad);
     $('#searchBar').val(pageLoad);
   }
 
-
+  function getUrlById(id) {
+    var url = $.map(bTabs.tabs, function(obj, index) {
+        if(obj.id == id) {
+            return obj.tmpUrl;
+        }
+    })[0]
+    return url;
+  }
+  $('.suggestions-tab').on('click', '.suggestion', function() {
+    var selected = $(this).find('p').text();
+    $('#searchBar').val(selected);
+    var index = $.map(bTabs.tabs, function(obj, index) {
+        if(obj.id == curTab) {
+            return index;
+        }
+    })[0]
+    bTabs.tabs[index].url = "https://www.google.com/#q=" + selected;
+    $('.suggestions-tab').removeClass("act");
+    webSuggestionsData.suggestions = [];
+  });
+  $("#searchBar").on("paste keyup", function(e) {
+    console.log(e);
+    if (e.which == 13 || e.which == 38 || e.which == 40) {
+      return;
+    }
+    if(!$('.suggestions-tab > .suggestion.sel').length){
+      $('.suggestions-tab > .suggestion:nth-child(1)').addClass('sel');
+    }
+    var value = $('#searchBar').val();
+    webSuggestionsData.search = value;
+    auto.getQuerySuggestions(value, function(err, suggestions) {
+      if (value == "") {
+        $('.suggestions-tab').removeClass("act");
+      }
+      if(value.indexOf('://') < 0){
+        var newArr = [];
+        for (var i = 0; i < suggestions.length; i++) {
+          if((suggestions[i].relevance >= 600 || i < 4) && i < 5){
+            newArr.push(suggestions[i].suggestion);
+            console.log(suggestions[i].suggestion);
+          }
+        }
+        webSuggestionsData.suggestions = newArr;
+      }
+      if(webSuggestionsData.suggestions.length > 0){
+        $('.suggestions-tab').addClass("act");
+      }
+    })
+  });
+  $('#searchBar').keydown(function (e) {
+    console.log('keypress');
+    if($('.suggestions-tab').hasClass('act')){
+      console.log("key");
+      console.log(e.which);
+      var selIndex = $('.sel').index() + 1;
+      if (e.which == 40 && selIndex < $(".suggestions-tab").children().length) {
+        console.log("down");
+        selIndex++;
+        $('.suggestions-tab > .suggestion.sel').removeClass('sel');
+        $('.suggestions-tab > .suggestion:nth-child(' + selIndex +')').addClass('sel');
+        $('#searchBar').val($('.suggestions-tab > .suggestion.sel > p').text());
+      }
+      else if (e.which == 38 && selIndex != 1) {
+        e.preventDefault();
+        console.log("up");
+        selIndex--;
+        $('.suggestions-tab > .suggestion.sel').removeClass('sel');
+        $('.suggestions-tab > .suggestion:nth-child(' + selIndex +')').addClass('sel');
+        $('#searchBar').val($('.suggestions-tab > .suggestion.sel > p').text());
+      }
+      if(e.which == 38){
+        e.preventDefault();
+      }
+    }
+  });
   $('#searchBar').keypress(function (e) {
+
+
     if (e.which == 13) {
+
       var url = $('#searchBar').val();
       var finUrl = url;
       if((url.indexOf('.') < 0 && url.indexOf(':') < 0)|| (url.indexOf('.') == url.lenght || url.indexOf('.') == 0)){
@@ -107,9 +193,13 @@ onload = () => {
       else if(!url.startsWith("http://") && !url.startsWith("https://")){
         finUrl = "https://" + url;
       }
-      console.log(finUrl);
-      var webview = $('#' + curTab)[0];
-      webview.loadURL(finUrl);
+      var index = $.map(bTabs.tabs, function(obj, index) {
+          if(obj.id == curTab) {
+              return index;
+          }
+      })[0]
+      bTabs.tabs[index].url = finUrl;
+
     }
   });
   $('#backBtn').click(function (e) {
@@ -118,7 +208,7 @@ onload = () => {
   });
   $('#forwardBtn').click(function (e) {
     var webview = $('#' + curTab)[0];
-    webview.goBack();
+    webview.goForward();
   });
   $('#homeBtn').click(function (e) {
     var webview = $('#' + curTab)[0];
@@ -139,6 +229,10 @@ onload = () => {
   });
   $('.v-tabs').on('click', '.tab-close', function() {
     var id = $(this).parent().attr('tab-id');
+    if(bTabs.tabs.length <= 1){
+      var window = remote.getCurrentWindow();
+      window.close();
+    }
     setTimeout(function() {
       deleteTab(id);
     }, 100);
@@ -152,7 +246,7 @@ onload = () => {
   });
 
   $('#historyBtn').click(function (e) {
-    
+
   });
 
   newTab("https://www.google.com");

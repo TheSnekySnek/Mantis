@@ -55,13 +55,23 @@
           </div>
           <input type="text" name="" onClick="this.select();" value="" id="searchBar">
         </div>
+        <div class="suggestions-tab">
+          <div class="suggestion sel" >
+            <i class="fa fa-search" aria-hidden="true"></i>
+            <p>{{search}}</p>
+          </div>
+          <div class="suggestion" v-for="suggestion in suggestions">
+            <i class="fa fa-search" aria-hidden="true"></i>
+            <p>{{suggestion}}</p>
+          </div>
+        </div>
         <div class="favBar">
 
         </div>
       </div>
       <div class="webBrowser">
-        <div class="tab" v-for="tab in tabs">
-          <webview :id="tab.id" :src="tab.url" style="display:inline-flex; width:100%; height:100%"></webview>
+        <div class="tab" v-for="tab in tabs" :web-id="tab.id">
+          <webview :id="tab.id" :src="tab.url" style="display:inline-flex; width:100%; height:100%" useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Spark/0.0.1 Chrome/56.0.2924.87 Safari/537.36"></webview>
         </div>
       </div>
     </div>
