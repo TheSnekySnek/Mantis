@@ -48,10 +48,26 @@ onload = () => {
     webview.addEventListener('did-stop-loading', loadstop)
     webview.addEventListener('did-fail-loading', loadfail)
     webview.addEventListener('new-window', newWindow)
+    webview.addEventListener('page-favicon-updated', favicon)
 
   });
 
+  const favicon = (e) =>{
+
+  }
+
   const loadstart = (e) => {
+    console.log("st");
+    console.log(e);
+    $('.v-tab[tab-id="'+ e.srcElement.id +'"] > .lc').show();
+    var index = $.map(bTabs.tabs, function(obj, index) {
+        if(obj.id == e.srcElement.id) {
+            return index;
+        }
+    })[0]
+
+    console.log(index);
+    bTabs.tabs[index].name = e.srcElement.src;
     $('.suggestions-tab').removeClass("act");
     webSuggestionsData.suggestions = [];
     console.log("Loading...");
@@ -70,6 +86,7 @@ onload = () => {
 
   const loadstop = (e) => {
     console.log(e);
+    $('.v-tab[tab-id="'+ e.srcElement.id +'"] > .lc').hide();
     var webview = e.srcElement;
     console.log(webview.id);
     var index = $.map(bTabs.tabs, function(obj, index) {

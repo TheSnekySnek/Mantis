@@ -36,7 +36,15 @@
         </div>
         <div class="v-tabs">
           <div :tab-id="tab.id" class="v-tab tab-selected" v-for="tab in tabs">
-            <p>{{tab.name}}</p>
+            <div class="lc" style="display:none;">
+              <div class="loader">
+
+              </div>
+            </div>
+            <p v-cloak>{{tab.name}}</p>
+            <div class="hide-text">
+
+            </div>
             <div class="tab-close">
 
             </div>
@@ -56,11 +64,11 @@
           <input type="text" name="" onClick="this.select();" value="" id="searchBar">
         </div>
         <div class="suggestions-tab">
-          <div class="suggestion sel" >
+          <div v-cloak class="suggestion sel" >
             <i class="fa fa-search" aria-hidden="true"></i>
             <p>{{search}}</p>
           </div>
-          <div class="suggestion" v-for="suggestion in suggestions">
+          <div v-cloak class="suggestion" v-for="suggestion in suggestions">
             <i class="fa fa-search" aria-hidden="true"></i>
             <p>{{suggestion}}</p>
           </div>
