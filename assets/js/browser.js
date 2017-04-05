@@ -1,7 +1,7 @@
 onload = () => {
 
   const auto = require('google-autocomplete');
-
+  const remote = require('electron').remote;
   const storage = require('electron-json-storage');
   storage.set('store', {history: []}, function(error) {
     if (error) throw error;
@@ -12,6 +12,11 @@ onload = () => {
   var curTab = "";
   var bTabs = { tabs:[] };
   var webSuggestionsData = {search: "", suggestions: []};
+  var bookmarksData = { bookmarks: [
+    { name: "Test", url: "https://localhost:3000" },
+    { name: "Test2", url: "https://google.com" },
+    { name: "Test3", url: "https://google.com" }
+  ]} ;
   var visualTabs = new Vue({
     el: '.v-tabs',
     data: bTabs
@@ -26,6 +31,11 @@ onload = () => {
     data: webSuggestionsData
   })
 
+  var bookmarks = new Vue({
+    el: '.favBar',
+    data: bookmarksData
+  })
+
   function newTab(url) {
     var newId = makeid();
     bTabs.tabs.push({url: url, id: newId, name: "", tmpUrl: url});
@@ -33,6 +43,22 @@ onload = () => {
     displayTab(newId);
     $('#searchBar').val("");
   }
+
+  function extractHostname(url) {
+    var domain;
+    //find & remove protocol (http, ftp, etc.) and get domain
+    if (url.indexOf("://") > -1) {
+        domain = url.split('/')[2];
+    }
+    else {
+        domain = url.split('/')[0];
+    }
+
+    //find & remove port number
+    domain = domain.split(':')[0];
+
+    return domain;
+}
 
   function displayTab(id) {
     $('.tab[web-id="' + id + '"]').css('visibility', 'visible');
@@ -52,18 +78,11 @@ onload = () => {
     webview.addEventListener('did-fail-load', loadfail)
     webview.addEventListener('new-window', newWindow)
     webview.addEventListener('page-favicon-updated', favicon)
-    webview.addEventListener('did-get-response-details', response)
-
   });
-
-  const response = (e) =>{
-
-  }
 
   const favicon = (e) =>{
     if(e.favicons.length > 0)
     $(".v-tab[tab-id='" + e.srcElement.id +"'] > .fav > img").attr('src', e.favicons[0]);
-
     console.log(e.favicons);
   }
 
@@ -77,19 +96,28 @@ onload = () => {
             return index;
         }
     })[0]
-
     bTabs.tabs[index].name = e.srcElement.src;
     $('.suggestions-tab').removeClass("act");
     webSuggestionsData.suggestions = [];
     console.log("Loading...");
-
   }
 
   const loadfail = (e) => {
     console.log(e);
     console.log("fail");
-    disableNext = true;
-    e.srcElement.loadURL("file://" + __dirname + "/assets/error/105.html");
+    switch (e.errorCode) {
+      case -501:
+        //ask to add
+        console.log("Push");
+        var dList = remote.getGlobal("ignoredDomains").urls
+        dList.push(extractHostname(e.srcElement.src));
+        remote.getGlobal("ignoredDomains").urls = dList;
+        console.log(remote.getGlobal("ignoredDomains").urls);
+        break;
+      default:
+        disableNext = true;
+        e.srcElement.loadURL("file://" + __dirname + "/assets/error/105.html");
+    }
   }
 
   const newWindow = (event) => {
@@ -141,7 +169,6 @@ onload = () => {
     else {
       disableNext = false;
     }
-
   }
 
   function getUrlById(id) {
@@ -251,6 +278,15 @@ onload = () => {
   $('.add-tab').click(function (e) {
     newTab("https://www.google.com");
   });
+  $('.favBar').on('click', '.bookmark', function() {
+    var markUrl = $(this).attr('mark-url');
+    var index = $.map(bTabs.tabs, function(obj, index) {
+        if(obj.id == curTab) {
+            return index;
+        }
+    })[0]
+    bTabs.tabs[index].url = markUrl;
+  });
   $('.v-tabs').on('click', '.v-tab', function() {
     var tabId = $(this).attr('tab-id');
     console.log(tabId);
@@ -294,7 +330,7 @@ onload = () => {
     return text;
   }
 
-  const remote = require('electron').remote;
+
   $('.min-icon').click(function (e) {
     var window = remote.getCurrentWindow();
     window.minimize();

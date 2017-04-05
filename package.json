@@ -13,6 +13,7 @@
     "electron": "~1.6.2"
   },
   "dependencies": {
-    "electron-json-storage": "^3.0.4"
+    "electron-json-storage": "^3.0.4",
+    "google-autocomplete": "0.0.1"
   }
 }

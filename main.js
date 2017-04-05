@@ -23,6 +23,7 @@ function createWindow () {
   }))
 
 
+
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
     // Dereference the window object, usually you would store windows
@@ -46,15 +47,32 @@ app.on('window-all-closed', function () {
   }
 })
 
-var ignoredDomains[]
+function extractHostname(url) {
+  var domain;
+  //find & remove protocol (http, ftp, etc.) and get domain
+  if (url.indexOf("://") > -1) {
+      domain = url.split('/')[2];
+  }
+  else {
+      domain = url.split('/')[0];
+  }
+
+  //find & remove port number
+  domain = domain.split(':')[0];
+
+  return domain;
+}
+
+global.ignoredDomains = {urls: []};
 
 app.on('certificate-error', (event, webContents, url, error, certificate, callback) => {
-  if (true) {
+  console.log(global.ignoredDomains.urls);
+  if (global.ignoredDomains.urls.includes(extractHostname(url))) {
     // Verification logic.
     event.preventDefault()
     callback(true)
   } else {
-    callback(false)
+    callback(true)
   }
 })
 
