@@ -57,7 +57,7 @@ body{
     background: linear-gradient(to right, rgba(255, 255, 255, 0),21px, #2a2626);
 }
 .v-tab{
-  width: 190px;
+  width: 185px;
   -webkit-transform: skew(-45deg);
   background-color: #636363;
   height: 30px;
@@ -78,7 +78,7 @@ body{
 .v-tab > p{
   -webkit-transform: skew(45deg);
   color: #e7e7e7;
-  text-align: center;
+  text-align: left;
   margin-top: 7px;
   text-overflow: clip;
   white-space: nowrap;
@@ -262,6 +262,28 @@ body{
 [v-cloak] {
   display: none;
 }
+.fav{
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  transform: skew(45deg);
+  top: 6px;
+  left: 15px;
+}
+.fav > img[src=""]{
+  display: none;
+}
+.fav > img{
+  width:  100%;
+  height: 100%;
+}
+
+.is-secure{
+  color: green;
+  position: absolute;
+  top: 62px;
+  left: 193px;
+}
 #searchBar{
   height: 24px;
   margin-top: 5px;
@@ -271,4 +293,7 @@ body{
   padding-left: 10px;
   width: calc(100% - 240px);
   color: #4c4c4c;
+}
+#searchBar.sec{
+  padding-left: 25px;
 }

@@ -7,6 +7,7 @@ onload = () => {
     if (error) throw error;
 
   });
+  var disableNext = false;
 
   var curTab = "";
   var bTabs = { tabs:[] };
@@ -30,10 +31,12 @@ onload = () => {
     bTabs.tabs.push({url: url, id: newId, name: "", tmpUrl: url});
     curTab = newId;
     displayTab(newId);
+    $('#searchBar').val("");
   }
 
   function displayTab(id) {
     $('.tab[web-id="' + id + '"]').css('visibility', 'visible');
+    $('.tab[web-id="' + id + '"] > webview').focus();
     $('.tab:not([web-id="' + id + '"])').css('visibility', 'hidden');
     curTab = id;
     $(".v-tab").removeClass("tab-selected")
@@ -46,19 +49,28 @@ onload = () => {
     var webview = $(this)[0];
     webview.addEventListener('did-start-loading', loadstart)
     webview.addEventListener('did-stop-loading', loadstop)
-    webview.addEventListener('did-fail-loading', loadfail)
+    webview.addEventListener('did-fail-load', loadfail)
     webview.addEventListener('new-window', newWindow)
     webview.addEventListener('page-favicon-updated', favicon)
+    webview.addEventListener('did-get-response-details', response)
 
   });
 
-  const favicon = (e) =>{
+  const response = (e) =>{
 
   }
 
+  const favicon = (e) =>{
+    if(e.favicons.length > 0)
+    $(".v-tab[tab-id='" + e.srcElement.id +"'] > .fav > img").attr('src', e.favicons[0]);
+
+    console.log(e.favicons);
+  }
+
   const loadstart = (e) => {
-    console.log("st");
-    console.log(e);
+    $('.is-secure').hide();
+    $('#searchBar').removeClass('sec');
+    $(".v-tab[tab-id='" + e.srcElement.id +"'] > .fav > img").hide();
     $('.v-tab[tab-id="'+ e.srcElement.id +'"] > .lc').show();
     var index = $.map(bTabs.tabs, function(obj, index) {
         if(obj.id == e.srcElement.id) {
@@ -66,7 +78,6 @@ onload = () => {
         }
     })[0]
 
-    console.log(index);
     bTabs.tabs[index].name = e.srcElement.src;
     $('.suggestions-tab').removeClass("act");
     webSuggestionsData.suggestions = [];
@@ -77,6 +88,8 @@ onload = () => {
   const loadfail = (e) => {
     console.log(e);
     console.log("fail");
+    disableNext = true;
+    e.srcElement.loadURL("file://" + __dirname + "/assets/error/105.html");
   }
 
   const newWindow = (event) => {
@@ -87,6 +100,7 @@ onload = () => {
   const loadstop = (e) => {
     console.log(e);
     $('.v-tab[tab-id="'+ e.srcElement.id +'"] > .lc').hide();
+    $(".v-tab[tab-id='" + e.srcElement.id +"'] > .fav > img").show();
     var webview = e.srcElement;
     console.log(webview.id);
     var index = $.map(bTabs.tabs, function(obj, index) {
@@ -106,7 +120,6 @@ onload = () => {
           if (error) throw error;
 
         });
-        console.log(rh);
       }
       else{
         storage.set('store', {history: [historyEntry]}, function(error) {
@@ -115,11 +128,20 @@ onload = () => {
         });
       }
     });
-    console.log(index);
     bTabs.tabs[index].name = webview.getTitle();
-    bTabs.tabs[index].tmpUrl = pageLoad;
-    console.log(pageLoad);
-    $('#searchBar').val(pageLoad);
+    if(!disableNext){
+      bTabs.tabs[index].tmpUrl = pageLoad;
+      console.log(pageLoad);
+      $('#searchBar').val(pageLoad);
+      if(pageLoad.indexOf("https://") == 0){
+        $('.is-secure').show();
+        $('#searchBar').addClass('sec');
+      }
+    }
+    else {
+      disableNext = false;
+    }
+
   }
 
   function getUrlById(id) {
@@ -143,7 +165,6 @@ onload = () => {
     webSuggestionsData.suggestions = [];
   });
   $("#searchBar").on("paste keyup", function(e) {
-    console.log(e);
     if (e.which == 13 || e.which == 38 || e.which == 40) {
       return;
     }
@@ -161,7 +182,6 @@ onload = () => {
         for (var i = 0; i < suggestions.length; i++) {
           if((suggestions[i].relevance >= 600 || i < 4) && i < 5){
             newArr.push(suggestions[i].suggestion);
-            console.log(suggestions[i].suggestion);
           }
         }
         webSuggestionsData.suggestions = newArr;
@@ -172,13 +192,11 @@ onload = () => {
     })
   });
   $('#searchBar').keydown(function (e) {
-    console.log('keypress');
+    $('.is-secure').hide();
+    $('#searchBar').removeClass('sec');
     if($('.suggestions-tab').hasClass('act')){
-      console.log("key");
-      console.log(e.which);
       var selIndex = $('.sel').index() + 1;
       if (e.which == 40 && selIndex < $(".suggestions-tab").children().length) {
-        console.log("down");
         selIndex++;
         $('.suggestions-tab > .suggestion.sel').removeClass('sel');
         $('.suggestions-tab > .suggestion:nth-child(' + selIndex +')').addClass('sel');
@@ -186,7 +204,6 @@ onload = () => {
       }
       else if (e.which == 38 && selIndex != 1) {
         e.preventDefault();
-        console.log("up");
         selIndex--;
         $('.suggestions-tab > .suggestion.sel').removeClass('sel');
         $('.suggestions-tab > .suggestion:nth-child(' + selIndex +')').addClass('sel');

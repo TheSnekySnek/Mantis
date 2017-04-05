@@ -36,6 +36,9 @@
         </div>
         <div class="v-tabs">
           <div :tab-id="tab.id" class="v-tab tab-selected" v-for="tab in tabs">
+            <div class="fav">
+              <img src="" alt="" onerror="this.style.display='none'">
+            </div>
             <div class="lc" style="display:none;">
               <div class="loader">
 
@@ -61,6 +64,7 @@
             <i class="fa fa-refresh" aria-hidden="true" id="refreshBtn"></i>
             <i class="fa fa-home" aria-hidden="true" id="homeBtn"></i>
           </div>
+          <i class="fa fa-lock is-secure" style="display: none;" aria-hidden="true"></i>
           <input type="text" name="" onClick="this.select();" value="" id="searchBar">
         </div>
         <div class="suggestions-tab">
