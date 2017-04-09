@@ -11,20 +11,20 @@ onload = () => {
 
   var playerOffset = $('.progress-bar').position().left;
   var playerClick = false;
+
   var volumeOffset = $('.songVol').offset().left;
-  console.log(volumeOffset);
   var volumeClick = false;
 
   var curTab = "";
   var bTabs = { tabs:[] };
-  var webSuggestionsData = {search: "", suggestions: []};
-  var bookmarksData = { bookmarks: [
+  const webSuggestionsData = {search: "", suggestions: []};
+  const bookmarksData = { bookmarks: [
     { name: "Test", url: "https://localhost:3000" },
     { name: "Test2", url: "https://google.com" },
     { name: "Test3", url: "https://google.com" }
   ]};
 
-  var musicData = {
+  const musicData = {
     name: "Stopped",
     path: "",
     len: 220,
@@ -67,6 +67,15 @@ onload = () => {
     var songs = remote.require('./main').initMusicFiles();
     musicData.songs = songs;
     playNextSong();
+  }
+
+  global.openPanel = function() {
+    $('#sidePanel').removeClass('close');
+    $('#sidePanel').addClass('open');
+  }
+  global.closePanel = function() {
+    $('#sidePanel').removeClass('open');
+    $('#sidePanel').addClass('close');
   }
 
   function playerPlay() {
@@ -161,6 +170,10 @@ onload = () => {
 
   $('#mStopBtn').click(function() {
     playerStop();
+  });
+
+  $('#settingsBtn').click(function() {
+    $('#sidePanel').hasClass('open') ? closePanel() : openPanel();
   });
 
   function setVolume(vl) {
@@ -569,9 +582,4 @@ onload = () => {
     bTabs.tabs.splice(index, 1);
     displayTab(bTabs.tabs[bTabs.tabs.length-1].id);
   }
-
-
-
-
-
 }

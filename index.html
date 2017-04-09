@@ -12,6 +12,9 @@
     <link rel="stylesheet" href="./assets/fa/css/font-awesome.css">
   </head>
   <body>
+    <div id="sidePanel" class="close">
+
+    </div>
     <div class="container">
       <div class="w-icons">
         <div class="min-icon">
@@ -67,8 +70,8 @@
           <i class="fa fa-lock is-secure" style="display: none;" aria-hidden="true"></i>
           <input type="text" name="" onClick="this.select();" value="" id="searchBar">
           <div class="search-right">
-            <i class="fa fa-eye" style="display: none;" aria-hidden="true"></i>
-            <i class="fa fa-star" style="display: none;" aria-hidden="true"></i>
+            <i class="fa fa-eye" aria-hidden="true"></i>
+            <i class="fa fa-star" aria-hidden="true"></i>
           </div>
           <div class="musicBar">
             <audio id="musicPlayer" :src="path" volume="0.1">
@@ -118,7 +121,7 @@
       </div>
       <div class="webBrowser">
         <div class="tab" v-for="tab in tabs" :web-id="tab.id">
-          <webview :id="tab.id" :src="tab.url" style="display:inline-flex; width:100%; height:100%" useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Spark/0.0.1 Chrome/56.0.2924.87 Safari/537.36"></webview>
+          <webview :id="tab.id" :src="tab.url" style="float: right; display:inline-flex; width:100%; height:100%" useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Spark/0.0.1 Chrome/56.0.2924.87 Safari/537.36"></webview>
         </div>
       </div>
     </div>

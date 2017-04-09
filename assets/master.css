@@ -393,3 +393,31 @@ body{
   margin-right: -2px !important;
   margin-top: 1px !important;
 }
+.search-right{
+  position: absolute;
+  right: 240px;
+  z-index: 9999;
+  top: 60px;
+  font-size: 18px;
+}
+#sidePanel{
+  position: absolute;
+  top: 130px;
+  background-color: #2a2626;
+  height: calc(100vh - 130px);
+  width: 35%;
+  max-width: 400px;
+  min-width: 250px;
+  left: 10px;
+  z-index: 1;
+  border-radius: 7px 7px 0 0;
+}
+
+#sidePanel.open{
+  transition: 2s;
+  left: 10px;
+}
+#sidePanel.close{
+  transition: 2s;
+  left: -400px;
+}
