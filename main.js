@@ -6,6 +6,8 @@ const BrowserWindow = electron.BrowserWindow
 
 const path = require('path')
 const url = require('url')
+const fs = require('fs');
+const dir = "C:\\Users\\Diego\\Desktop\\";
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -46,6 +48,19 @@ app.on('window-all-closed', function () {
     app.quit()
   }
 })
+
+exports.initMusicFiles = function () {
+  var files = fs.readdirSync(dir);
+  var songs = [];
+  for (var i = 0; i < files.length; i++) {
+    var ext = files[i].substr(files[i].lastIndexOf('.') + 1);
+    console.log(ext);
+    if(ext == "mp3" || ext == "ogg" || ext == "wav" || ext == "aac"){
+      songs.push(dir + files[i]);
+    }
+  }
+  return songs;
+}
 
 function extractHostname(url) {
   var domain;

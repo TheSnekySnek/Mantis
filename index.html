@@ -66,6 +66,39 @@
           </div>
           <i class="fa fa-lock is-secure" style="display: none;" aria-hidden="true"></i>
           <input type="text" name="" onClick="this.select();" value="" id="searchBar">
+          <div class="search-right">
+            <i class="fa fa-eye" style="display: none;" aria-hidden="true"></i>
+            <i class="fa fa-star" style="display: none;" aria-hidden="true"></i>
+          </div>
+          <div class="musicBar">
+            <audio id="musicPlayer" :src="path" volume="0.1">
+
+            </audio>
+            <div style="height: 20px;">
+              <p v-cloak class="song-time">{{timeStr}}</p><p v-cloak style="margin: 0 5px;margin-top: -1px;">{{sep}}</p><p v-cloak class="song-title">{{name}}</p>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-bar__bg">
+                <div class="progress-bar__fg" v-bind:style="{width: timeCss}" ></div>
+                <div class="progress-bar__slider" v-bind:style="{left: timeCss}"></div>
+              </div>
+            </div>
+            <div class="song-commands">
+              <div class="songCtrl">
+                <i class="fa fa-step-backward" aria-hidden="true" id="mBackBtn"></i>
+                <i class="fa fa-play" aria-hidden="true" id="mPauseBtn"></i>
+                <i class="fa fa-stop" aria-hidden="true" id="mStopBtn"></i>
+                <i class="fa fa-step-forward" aria-hidden="true" id="mForwardBtn"></i>
+              </div>
+              <div class="songVol">
+                <div class="progress-bar__bg">
+                  <div class="progress-bar__fg" v-bind:style="{width: volumeCss}" ></div>
+                  <div class="progress-bar__slider" v-bind:style="{left: volumeCss}"></div>
+                </div>
+              </div>
+              <p v-cloak class="songVolTxt">{{volumeStr}}</p>
+            </div>
+          </div>
         </div>
         <div class="suggestions-tab">
           <div v-cloak class="suggestion sel" >

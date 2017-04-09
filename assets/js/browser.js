@@ -9,6 +9,12 @@ onload = () => {
   });
   var disableNext = false;
 
+  var playerOffset = $('.progress-bar').position().left;
+  var playerClick = false;
+  var volumeOffset = $('.songVol').offset().left;
+  console.log(volumeOffset);
+  var volumeClick = false;
+
   var curTab = "";
   var bTabs = { tabs:[] };
   var webSuggestionsData = {search: "", suggestions: []};
@@ -16,7 +22,23 @@ onload = () => {
     { name: "Test", url: "https://localhost:3000" },
     { name: "Test2", url: "https://google.com" },
     { name: "Test3", url: "https://google.com" }
-  ]} ;
+  ]};
+
+  var musicData = {
+    name: "Stopped",
+    path: "",
+    len: 220,
+    time: 83,
+    timeStr: "0:00",
+    timeCss: "0%",
+    volumeCss: "10%",
+    sep: "|",
+    volume: 0.1,
+    volumeStr: "10%",
+    songs: [],
+    index: 0
+  };
+
   var visualTabs = new Vue({
     el: '.v-tabs',
     data: bTabs
@@ -35,6 +57,192 @@ onload = () => {
     el: '.favBar',
     data: bookmarksData
   })
+
+  var musicPlayer = new Vue({
+    el: '.musicBar',
+    data: musicData
+  })
+
+  global.initMusic = function() {
+    var songs = remote.require('./main').initMusicFiles();
+    musicData.songs = songs;
+    playNextSong();
+  }
+
+  function playerPlay() {
+    if($('#musicPlayer').attr("src") == ""){
+      initMusic();
+    }
+    else{
+      $('#musicPlayer')[0].play();
+      $('#mPauseBtn').removeClass('fa-play');
+      $('#mPauseBtn').addClass('fa-pause');
+    }
+  }
+  function playerPause() {
+    $('#musicPlayer')[0].pause();
+    $('#mPauseBtn').removeClass('fa-pause');
+    $('#mPauseBtn').addClass('fa-play');
+  }
+
+  function playerStop() {
+    playerPause();
+    musicData.path = "";
+    musicData.name = "Stopped";
+    musicData.time = 0;
+    musicData.timeCss = "0%"
+    musicData.timeStr = "0:00";
+    musicData.len = 0;
+    musicData.index = 0;
+  }
+
+  function playNextSong(back = false) {
+    var songs = musicData.songs;
+    if(back){
+      musicData.index > 0 ? musicData.index-- : musicData.index = songs.length-1;
+    }
+    else {
+      musicData.index < songs.length-1 ? musicData.index++ : musicData.index = 0;
+    }
+    var song = songs[musicData.index];
+    musicData.path = song;
+    musicData.name = song.replace(/^.*[\\\/]/, '').replace(/\.[^/.]+$/, "");
+    musicData.time = 0;
+    musicData.timeCss = "0%"
+    musicData.timeStr = "0:00";
+    var player = $('#musicPlayer').get();
+    musicData.len = player[0].duration
+    setTimeout(function () {
+      playerPlay();
+    }, 1000)
+  }
+
+  global.calculatePlayerBar = function() {
+    var cur = musicData.time;
+    var len = musicData.len;
+    var cal = cur * 100 / len;
+    musicData.timeCss = cal +"%";
+  };
+  global.setPlayerTime = function(tm) {
+    musicData.time = tm;
+    var minutes = Math.floor(tm / 60);
+    var seconds = Math.floor(tm - minutes * 60);
+    if (seconds < 10) {
+      seconds = "0" + seconds;
+    }
+    musicData.timeStr = minutes + ":" + seconds;
+    calculatePlayerBar();
+  };
+
+  $('#musicPlayer').on("durationchange", function() {
+    musicData.len = this.duration;
+  });
+
+  $('#musicPlayer').on("timeupdate", function() {
+    setPlayerTime(this.currentTime);
+  });
+
+  $('#musicPlayer').on("ended", function() {
+    playNextSong();
+  });
+
+  $('#mPauseBtn').click(function() {
+    var player = $('#musicPlayer').get();
+    player[0].paused ? playerPlay() : playerPause();
+  });
+
+  $('#mForwardBtn').click(function() {
+    playNextSong();
+  });
+
+  $('#mBackBtn').click(function() {
+    playNextSong(true);
+  });
+
+  $('#mStopBtn').click(function() {
+    playerStop();
+  });
+
+  function setVolume(vl) {
+    var player = $('#musicPlayer').get();
+    player[0].volume = vl / 100;
+    player.volume = vl / 100;
+    musicData.volume = vl / 100;
+    musicData.volumeStr = vl + "%";
+    musicData.volumeCss = vl +"%";
+  }
+  var player = $('#musicPlayer').get();
+  player[0].volume = 0.1;
+  $( window ).resize(function() {
+    playerOffset = $('.progress-bar').position().left;
+    volumeOffset = $('.songVol').offset().left;
+  });
+  $('.progress-bar').mouseleave(function(){
+    playerClick = false;
+  });
+  $(document).mouseup(function(){
+    playerClick = false;
+  })
+  $('.progress-bar').mousedown(function(){
+    playerClick = true;
+    console.log(event.pageX);
+    var x = event.pageX - playerOffset;
+    var len = musicData.len;
+    var playerLen = 200;
+    var e = (x * len) / playerLen;
+    console.log(e);
+    if(e <= len)
+      var player = $('#musicPlayer').get();
+      console.log("cha");
+      player[0].currentTime = e;
+      setPlayerTime(e);
+  });
+  $( ".progress-bar" ).mousemove(function( event ) {
+
+    if(playerClick){
+      var x = event.pageX - playerOffset;
+      var len = musicData.len;
+      var playerLen = 200;
+      var e = (x * len) / playerLen;
+      console.log(e);
+      if(e <= len)
+        var player = $('#musicPlayer').get();
+        console.log("cha");
+        player[0].currentTime = e;
+        setPlayerTime(e);
+    }
+  });
+
+  $(".songVol").mouseleave(function(){
+    volumeClick = false;
+    console.log("leave");
+  });
+  $(document).mouseup(function(){
+    volumeClick = false;
+  })
+  $(".songVol").mousedown(function(){
+    volumeClick = true;
+    console.log("vol");
+    var x = event.pageX - volumeOffset;
+    var len = 100;
+    var volumeLen = 60;
+    var e = Math.floor((x * len) / volumeLen);
+    console.log(e);
+    if(e <= len && e >= 0)
+      setVolume(e);
+  });
+  $( ".songVol" ).mousemove(function( event ) {
+
+    if(volumeClick){
+      var x = event.pageX - volumeOffset;
+      var len = 100;
+      var volumeLen = 60;
+      var e = Math.floor((x * len) / volumeLen);
+      console.log(e);
+      if(e <= len && e >= 0)
+        setVolume(e);
+    }
+  });
 
   function newTab(url) {
     var newId = makeid();
@@ -87,6 +295,8 @@ onload = () => {
   }
 
   const loadstart = (e) => {
+    $('#refreshBtn').removeClass('fa-refresh');
+    $('#refreshBtn').addClass('fa-times');
     $('.is-secure').hide();
     $('#searchBar').removeClass('sec');
     $(".v-tab[tab-id='" + e.srcElement.id +"'] > .fav > img").hide();
@@ -127,6 +337,8 @@ onload = () => {
 
   const loadstop = (e) => {
     console.log(e);
+    $('#refreshBtn').removeClass('fa-times');
+    $('#refreshBtn').addClass('fa-refresh');
     $('.v-tab[tab-id="'+ e.srcElement.id +'"] > .lc').hide();
     $(".v-tab[tab-id='" + e.srcElement.id +"'] > .fav > img").show();
     var webview = e.srcElement;

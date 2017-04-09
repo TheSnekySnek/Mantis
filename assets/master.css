@@ -2,6 +2,8 @@ body{
   font-family: Segoe UI;
   margin: 0;
   overflow: hidden;
+  user-select: none;
+  cursor: default;
 }
 .topBar{
 
@@ -15,11 +17,11 @@ body{
 }
 .actionBar{
   background-color: #2a2626;
-  padding: 2px 10px;
-  width: calc(100% - 40px);
+  padding: 5px 10px;
+  width: calc(100% - 30px);
   background-color: #2a2626;
   float: left;
-  border-radius: 7px 7px 0px 0px;
+  border-radius: 7px 0px 0px 0px;
   margin: 0 10px;
 }
 .navBtn{
@@ -162,11 +164,12 @@ body{
   margin: 0 3px;
 }
 .suggestions-tab{
+  margin: 0px 194px;
+  width: calc(100% - 440px);
   position: absolute;
-  top: 90px;
-  width: 100%;
+  top: 84px;
   border-bottom: 1px solid #e8e8e8;
-  z-index: 99;
+  z-index: 9999;
   background-color: white;
   overflow: hidden;
   height: 0;
@@ -177,7 +180,7 @@ body{
   margin-right: 10px;
 }
 .suggestion{
-  padding-left: 167px;
+  padding-left: 10px;
   padding-top: 5px;
   height: 25px;
   cursor: default;
@@ -285,7 +288,7 @@ body{
 .is-secure{
   color: green;
   position: absolute;
-  top: 62px;
+  top: 65px;
   left: 203px;
 }
 
@@ -294,27 +297,99 @@ body{
   margin: 0 10px;
 }
 .favBar{
-  height: 25px;
+  height: 30px;
   position: absolute;
   z-index: 999;
-  top: 90px;
-  width: calc(100% - 50px);
+  top: 95px;
+  width: calc(100% - 40px);
   margin: 0 10px;
   padding: 0 15px;
   background-color: #2a2626;
   color: white;
-  border-radius: 0 0 7px 7px;
+  border-radius: 0 0 0px 7px;
 }
 #searchBar{
   height: 24px;
   margin-top: 5px;
   border-radius: 4px;
   border: 0;
-  min-width: 300px;
-  padding-left: 10px;
-  width: calc(100% - 240px);
+  min-width: 200px;
+  padding-left: 25px;
+  padding-right: 100px;
+  width: calc(100% - 520px);
   color: #4c4c4c;
 }
 #searchBar.sec{
   padding-left: 25px;
+}
+.fa-times{
+  padding-right: 8.5px !important;
+}
+.musicBar{
+  float: right;
+  color: white;
+  width: 200px;
+}
+.musicBar p{
+  float: left;
+  margin: 0;
+  pointer-events: none;
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.progress-bar{
+  height: 15px;
+  margin-top: -5px;
+  padding-top: 10px;
+  background-color: rgba(0, 255, 255, 0);
+  z-index: 9999;
+  position: relative;
+}
+
+.progress-bar__bg{
+  width: 100%;
+  background-color: #3a3535;
+  height: 4px;
+  position: relative;
+  border: 1px solid;
+  border-radius: 2px;
+}
+.progress-bar__fg{
+  width: 0;
+  height: 100%;
+  background-color: white;
+}
+.progress-bar__slider{
+  left: 0;
+  height: 14px;
+  background-color: #e4e4e4;
+  position: absolute;
+  width: 5px;
+  top: -5px;
+}
+.song-commands{
+  position: relative;
+  z-index: 9999;
+  color: white;
+}
+.songCtrl{
+  float: left;
+}
+.songCtrl > i{
+  margin: 0 5px;
+}
+.songVol{
+  float: left;
+  width: 60px;
+  padding-top: 8px;
+  margin-left: 3px;
+}
+.songVolTxt{
+  font-size: 13px;
+  margin-left: 8px !important;
+  margin-right: -2px !important;
+  margin-top: 1px !important;
 }
