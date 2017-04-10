@@ -1,3 +1,9 @@
+const setupEvents = require('./installers/setupEvents')
+ if (setupEvents.handleSquirrelEvent()) {
+    // squirrel event handled and app will exit in 1000ms, so don't do anything else
+    return;
+ }
+
 const electron = require('electron')
 // Module to control application life.
 const app = electron.app
@@ -7,7 +13,7 @@ const BrowserWindow = electron.BrowserWindow
 const path = require('path')
 const url = require('url')
 const fs = require('fs');
-const dir = "C:\\Users\\Diego\\Desktop\\";
+const dir = "C:\\Users\\Diego\\Music\\";
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -55,11 +61,11 @@ exports.initMusicFiles = function () {
   for (var i = 0; i < files.length; i++) {
     var ext = files[i].substr(files[i].lastIndexOf('.') + 1);
     console.log(ext);
-    if(ext == "mp3" || ext == "ogg" || ext == "wav" || ext == "aac"){
+    if(ext == "mp3" || ext == "ogg" || ext == "wav" || ext == "mp4"){
       songs.push(dir + files[i]);
     }
   }
-  return songs;
+  return songs.sort();
 }
 
 function extractHostname(url) {

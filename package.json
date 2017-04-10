@@ -1,16 +1,21 @@
 {
   "name": "Spark",
   "version": "0.0.1",
-  "description": "Chromium based browser",
+  "description": "Spark WebBrowser",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "package-mac": "electron-packager . --overwrite --asar=false --platform=darwin --arch=x64 --prune=true --out=release-builds",
+    "package-win": "electron-packager . --overwrite --asar=true --platform=win32 --arch=ia32 --icon=assets/logo256.ico --prune=true --out=release-builds --version-string.CompanyName=Spark --version-string.FileDescription=Executable --version-string.ProductName=\"Spark\"",
+    "package-linux": "electron-packager . --overwrite --asar=false --platform=linux --arch=x64 --icon=assets/logo256.png --prune=true --out=release-builds",
+    "create-installer-win": "node installers/windows/create.js"
   },
   "repository": "",
   "author": "Diego Villagrasa",
   "license": "CC0-1.0",
   "devDependencies": {
-    "electron": "~1.6.2"
+    "electron": "~1.6.2",
+    "electron-winstaller": "^2.5.2"
   },
   "dependencies": {
     "electron-json-storage": "^3.0.4",

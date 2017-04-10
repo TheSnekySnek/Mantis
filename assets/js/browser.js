@@ -70,10 +70,12 @@ onload = () => {
   }
 
   global.openPanel = function() {
+    $('.tab').width($(document).width() - $('#sidePanel').width() - 10);
     $('#sidePanel').removeClass('close');
     $('#sidePanel').addClass('open');
   }
   global.closePanel = function() {
+    $('.tab').width("100%");
     $('#sidePanel').removeClass('open');
     $('#sidePanel').addClass('close');
   }
@@ -178,7 +180,7 @@ onload = () => {
 
   function setVolume(vl) {
     var player = $('#musicPlayer').get();
-    player[0].volume = vl / 100;
+    player[0].volume = vl / 200;
     player.volume = vl / 100;
     musicData.volume = vl / 100;
     musicData.volumeStr = vl + "%";

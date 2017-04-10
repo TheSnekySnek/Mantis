@@ -42,6 +42,7 @@ body{
   height: calc(100vh - 120px);
   position: absolute;
   top: 120px;
+  right: 0;
 }
 .hide-text{
   transform: skew(45deg);
@@ -405,19 +406,15 @@ body{
   top: 130px;
   background-color: #2a2626;
   height: calc(100vh - 130px);
-  width: 35%;
-  max-width: 400px;
-  min-width: 250px;
+  width: 300px;
   left: 10px;
   z-index: 1;
   border-radius: 7px 7px 0 0;
 }
 
 #sidePanel.open{
-  transition: 2s;
   left: 10px;
 }
 #sidePanel.close{
-  transition: 2s;
-  left: -400px;
+  left: -300px;
 }
