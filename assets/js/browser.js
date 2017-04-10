@@ -19,9 +19,7 @@ onload = () => {
   var bTabs = { tabs:[] };
   const webSuggestionsData = {search: "", suggestions: []};
   const bookmarksData = { bookmarks: [
-    { name: "Test", url: "https://localhost:3000" },
-    { name: "Test2", url: "https://google.com" },
-    { name: "Test3", url: "https://google.com" }
+    { name: "Demo", url: "http://example.com/" }
   ]};
 
   const musicData = {

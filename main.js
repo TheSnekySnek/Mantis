@@ -13,7 +13,9 @@ const BrowserWindow = electron.BrowserWindow
 const path = require('path')
 const url = require('url')
 const fs = require('fs');
-const dir = "C:\\Users\\Diego\\Music\\";
+var userDir = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
+console.log(userDir);
+const dir = path.join(userDir, "Music/");
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
