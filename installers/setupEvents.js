@@ -4,7 +4,7 @@ const app = electron.app
 module.exports = {
 handleSquirrelEvent: function() {
  if (process.argv.length === 1) {
- return false;
+   return false;
  }
 
  const ChildProcess = require('child_process');

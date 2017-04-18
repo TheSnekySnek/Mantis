@@ -1,33 +1,61 @@
 const setupEvents = require('./installers/setupEvents')
- if (setupEvents.handleSquirrelEvent()) {
-    // squirrel event handled and app will exit in 1000ms, so don't do anything else
-    return;
- }
-
+if (setupEvents.handleSquirrelEvent()) {
+  // squirrel event handled and app will exit in 1000ms, so don't do anything else
+  return;
+}
 const electron = require('electron')
 // Module to control application life.
 const app = electron.app
+app.commandLine.appendSwitch("js-flags", "--reduced-referrer-granularity");
+
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
+const session = electron.session
+const storage = require('electron-json-storage');
 
 const path = require('path')
 const url = require('url')
+const request = require('request')
 const fs = require('fs');
+
+
 var userDir = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
-console.log(userDir);
-const dir = path.join(userDir, "Music/");
+var dir = path.join(userDir, "Music/");
+
+storage.get('music', function(error, data) {
+  if (error) {
+    console.log(error);
+  }
+  else if(data){
+    dir = data.folder[0];
+  }
+
+});
+
+storage.get('music', function(error, data) {
+  if (error) {
+    console.log(error);
+  }
+  else if(data){
+    dir = data.folder[0] + "/";
+  }
+  console.log(data);
+});
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
+
 let mainWindow
+let torHandler
 
 function createWindow () {
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 1170, height: 770, frame: false})
+  console.log("normal");
+  mainWindow = new BrowserWindow({width: 1170, height: 770, frame: false, minWidth: 740, minHeight: 220, icon: __dirname + '/assets/icons/logo256.ico', webPreferences: { plugins: true }})
 
   // and load the index.html of the app.
   mainWindow.loadURL(url.format({
-    pathname: path.join(__dirname, 'index.html'),
+    pathname: path.join(__dirname, 'assets/ui/index.html'),
     protocol: 'file:',
     slashes: true
   }))
@@ -46,7 +74,9 @@ function createWindow () {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow)
+app.on('ready', function() {
+  createWindow();
+})
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
@@ -57,7 +87,43 @@ app.on('window-all-closed', function () {
   }
 })
 
-exports.initMusicFiles = function () {
+
+
+exports.enableIncognito = function () {
+
+  request({
+        url: 'https://www.example.com',
+        proxy: "socks5://127.0.0.1:9050"
+    }, function (error, response, body) {
+        if (error) {
+          //console.log(error);
+          var spawn = require('child_process').spawn;
+          torHandler = spawn(path.join(__dirname, '/assets/tor/Tor/tor.exe'));
+          mainWindow.webContents.session.setProxy({proxyRules:"socks5://127.0.0.1:9050"}, function () {console.log("Ingognito Mode");});
+          torHandler.stdout.on('data', function(data){
+              console.log('stdout:'+ data);
+          });
+        } else {
+            console.log(response);
+            mainWindow.webContents.session.setProxy({proxyRules:"socks5://127.0.0.1:9050"}, function () {console.log("Ingognito Mode");});
+        }
+    });
+}
+
+exports.disableIncognito = function () {
+  torHandler ? torHandler.kill() : console.log("Wut???");
+  mainWindow.webContents.session.setProxy({proxyRules:""}, function () {console.log("Normal Mode");});
+
+}
+
+exports.startIncognito = function () {
+  createTorWindow();
+}
+
+exports.initMusicFiles = function (dirName) {
+  if(dirName)
+    dir = dirName
+
   var files = fs.readdirSync(dir);
   var songs = [];
   for (var i = 0; i < files.length; i++) {
@@ -69,6 +135,7 @@ exports.initMusicFiles = function () {
   }
   return songs.sort();
 }
+
 
 function extractHostname(url) {
   var domain;
@@ -100,11 +167,7 @@ app.on('certificate-error', (event, webContents, url, error, certificate, callba
 })
 
 app.on('activate', function () {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (mainWindow === null) {
-    createWindow()
-  }
+
 })
 
 // In this file you can include the rest of your app's specific main process

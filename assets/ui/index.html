@@ -2,18 +2,46 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Spark</title>
+    <title>Mantis</title>
     <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
-    <script src="./assets/js/jquery-3.2.0.js" charset="utf-8"></script>
-    <script src="./assets/js/vue.js" charset="utf-8"></script>
-    <script src="./assets/js/arrive.min.js" charset="utf-8"></script>
+    <script src="../js/jquery-3.2.0.js" charset="utf-8"></script>
+    <script src="../js/jquery-ui.js" charset="utf-8"></script>
+    <script src="../js/marquee.js" charset="utf-8"></script>
+    <script src="../js/vue.js" charset="utf-8"></script>
+    <script src="../js/arrive.min.js" charset="utf-8"></script>
     <script>if (window.module) module = window.module;</script>
-    <link rel="stylesheet" href="./assets/master.css">
-    <link rel="stylesheet" href="./assets/fa/css/font-awesome.css">
+    <link rel="stylesheet" href="../css/master.css">
+    <link rel="stylesheet" href="../fa/css/font-awesome.css">
   </head>
   <body>
     <div id="sidePanel" class="close">
+      <div class="panelTopIcons">
+        <i class="fa fa-cog active" aria-hidden="true" id="setSettingsBtn"></i>
+        <i class="fa fa-bookmark" aria-hidden="true" id="setBookBtn"></i>
+        <i class="fa fa-history" aria-hidden="true" id="setHistoryBtn"></i>
+        <i class="fa fa-music" aria-hidden="true" id="setMusicBtn"></i>
+      </div>
+      <div class="SetContainer">
+        <div class="set-settings">
 
+        </div>
+        <div class="set-bookmarks">
+
+        </div>
+        <div class="set-history">
+
+        </div>
+        <div class="set-music">
+          <div class="folder-info">
+            <i class="fa fa-music" aria-hidden="true" id="musicSelect"></i>
+            <p class="folder-path-label">Playlist Folder</p>
+            <p class="folder-path"></p>
+          </div>
+          <div class="music-player">
+
+          </div>
+        </div>
+      </div>
     </div>
     <div class="container">
       <div class="w-icons">
@@ -68,17 +96,31 @@
             <i class="fa fa-home" aria-hidden="true" id="homeBtn"></i>
           </div>
           <i class="fa fa-lock is-secure" style="display: none;" aria-hidden="true"></i>
+
           <input type="text" name="" onClick="this.select();" value="" id="searchBar">
+
           <div class="search-right">
-            <i class="fa fa-eye" aria-hidden="true"></i>
-            <i class="fa fa-star" aria-hidden="true"></i>
+            <i class="fa fa-eye" aria-hidden="true" id="incognitoBtn"></i>
+            <i class="fa fa-star" aria-hidden="true" id="bookmarkBtn"></i>
+          </div>
+          <div class="top-connector">
+
+          </div>
+          <div class="bookmarkInf">
+            <p>Bookmark</p>
+            <label for="">Name: </label>
+            <input type="text" name="" value="" id="bookmarkName" class="input">
+            <div class="bookmarkInfBtns">
+              <button type="button" class="button" id="bookmarkSaveBtn" name="button">Save</button>
+              <button type="button" class="button" id="bookmarkDeleteBtn" name="button">Delete</button>
+            </div>
           </div>
           <div class="musicBar">
             <audio id="musicPlayer" :src="path" volume="0.1">
 
             </audio>
-            <div style="height: 20px;">
-              <p v-cloak class="song-time">{{timeStr}}</p><p v-cloak style="margin: 0 5px;margin-top: -1px;">{{sep}}</p><p v-cloak class="song-title">{{name}}</p>
+            <div id="top-song" style="height: 20px;">
+              <p v-cloak class="song-time">{{timeStr}}</p><p v-cloak style="margin: 0 5px;margin-top: -1px;">{{sep}}</p><p v-cloak class="song-title" >{{name}}</p>
             </div>
             <div class="progress-bar">
               <div class="progress-bar__bg">
@@ -126,5 +168,5 @@
       </div>
     </div>
   </body>
-  <script src="./assets/js/browser.js" charset="utf-8"></script>
+  <script src="../js/browser2.js" charset="utf-8"></script>
 </html>

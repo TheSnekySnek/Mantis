@@ -3,14 +3,22 @@ onload = () => {
   const auto = require('google-autocomplete');
   const remote = require('electron').remote;
   const storage = require('electron-json-storage');
+  storage.set('store', {history: []}, function(error) {
+    if (error) throw error;
 
-  //Vue
+  });
+  var disableNext = false;
+
+  var playerOffset = $('.progress-bar').position().left;
+  var playerClick = false;
+
+  var volumeOffset = $('.songVol').offset().left;
+  var volumeClick = false;
+
+  var curTab = "";
   var bTabs = { tabs:[] };
-  const webSuggestionsData = {search: "", suggestions: []};
   const bookmarksData = { bookmarks: [
-    { name: "Example", url: "http://example.com/" },
-    { name: "Hidden Wiki", url: "http://gxamjbnu7uknahng.onion/wiki/index.php/Main_Page" },
-    { name: "Demo3", url: "http://example.com/" }
+    { name: "Demo", url: "http://example.com/" }
   ]};
 
   const musicData = {
@@ -37,11 +45,6 @@ onload = () => {
     data: bTabs
   })
 
-  var webSuggestions = new Vue({
-    el: '.suggestions-tab',
-    data: webSuggestionsData
-  })
-
   var bookmarks = new Vue({
     el: '.favBar',
     data: bookmarksData
@@ -52,8 +55,23 @@ onload = () => {
     data: musicData
   })
 
+  global.initMusic = function() {
+    var songs = remote.require('./main').initMusicFiles();
+    musicData.songs = songs;
+    playNextSong();
+  }
 
-  //musicPlayer
+  global.openPanel = function() {
+    $('.tab').width($(document).width() - $('#sidePanel').width() - 15);
+    $('#sidePanel').removeClass('close');
+    $('#sidePanel').addClass('open');
+  }
+  global.closePanel = function() {
+    $('.tab').width("100%");
+    $('#sidePanel').removeClass('open');
+    $('#sidePanel').addClass('close');
+  }
+
   function playerPlay() {
     if($('#musicPlayer').attr("src") == ""){
       initMusic();
@@ -102,13 +120,13 @@ onload = () => {
     }, 1000)
   }
 
-  function calculatePlayerBar() {
+  global.calculatePlayerBar = function() {
     var cur = musicData.time;
     var len = musicData.len;
     var cal = cur * 100 / len;
     musicData.timeCss = cal +"%";
   };
-  function setPlayerTime(tm) {
+  global.setPlayerTime = function(tm) {
     musicData.time = tm;
     var minutes = Math.floor(tm / 60);
     var seconds = Math.floor(tm - minutes * 60);
@@ -119,11 +137,37 @@ onload = () => {
     calculatePlayerBar();
   };
 
-  function initMusic() {
-    var songs = remote.require('./main').initMusicFiles();
-    musicData.songs = songs;
+  $('#musicPlayer').on("durationchange", function() {
+    musicData.len = this.duration;
+  });
+  $('#musicPlayer').on("timeupdate", function() {
+    setPlayerTime(this.currentTime);
+  });
+
+  $('#musicPlayer').on("ended", function() {
     playNextSong();
-  }
+  });
+
+  $('#mPauseBtn').click(function() {
+    var player = $('#musicPlayer').get();
+    player[0].paused ? playerPlay() : playerPause();
+  });
+
+  $('#mForwardBtn').click(function() {
+    playNextSong();
+  });
+
+  $('#mBackBtn').click(function() {
+    playNextSong(true);
+  });
+
+  $('#mStopBtn').click(function() {
+    playerStop();
+  });
+
+  $('#settingsBtn').click(function() {
+    $('#sidePanel').hasClass('open') ? closePanel() : openPanel();
+  });
 
   function setVolume(vl) {
     var player = $('#musicPlayer').get();
@@ -133,7 +177,8 @@ onload = () => {
     musicData.volumeStr = vl + "%";
     musicData.volumeCss = vl +"%";
   }
-
+  var player = $('#musicPlayer').get();
+  player[0].volume = 0.1;
   $( window ).resize(function() {
     checkTabSize();
     playerOffset = $('.progress-bar').position().left;
@@ -206,62 +251,8 @@ onload = () => {
     }
   });
 
-  $('#musicPlayer').on("durationchange", function() {
-    musicData.len = this.duration;
-  });
-
-  $('#musicPlayer').on("timeupdate", function() {
-    setPlayerTime(this.currentTime);
-  });
-
-  $('#musicPlayer').on("ended", function() {
-    playNextSong();
-  });
-
-  $('#mPauseBtn').click(function() {
-    var player = $('#musicPlayer').get();
-    player[0].paused ? playerPlay() : playerPause();
-  });
-
-  $('#mForwardBtn').click(function() {
-    playNextSong();
-  });
-
-  $('#mBackBtn').click(function() {
-    playNextSong(true);
-  });
-
-  $('#mStopBtn').click(function() {
-    playerStop();
-  });
-
-
-  //Nav
-  $('#incognitoBtn').click(function() {
-    incognitoMode ? disableIncognito() : enableIncognito();
-  });
-
-  $('#settingsBtn').click(function() {
-    $('#sidePanel').hasClass('open') ? closePanel() : openPanel();
-  });
-
-  function enableIncognito() {
-    incognitoMode = true;
-    remote.require('./main').enableIncognito();
-    $("<link/>", {
-       rel: "stylesheet",
-       type: "text/css",
-       href: "./assets/torMaster.css"
-    }).appendTo("head");
-  }
-
-  function disableIncognito() {
-    incognitoMode = false;
-    remote.require('./main').disableIncognito();
-    $('link[rel=stylesheet][href="./assets/torMaster.css"]').remove();
-  }
-
   function newTab(url) {
+
     var newId = makeid();
     bTabs.tabs.push({url: url, id: newId, name: "", tmpUrl: url});
     curTab = newId;
@@ -283,8 +274,7 @@ onload = () => {
     domain = domain.split(':')[0];
 
     return domain;
-  }
-
+}
   function checkTabSize() {
     var tabsWidth = $('.container').width();
     var tabs = bTabs.tabs.length;
@@ -306,10 +296,10 @@ onload = () => {
   }
 
   function displayTab(id) {
-    curTab = id;
     $('.tab[web-id="' + id + '"]').css('visibility', 'visible');
     $('.tab[web-id="' + id + '"] > webview').focus();
     $('.tab:not([web-id="' + id + '"])').css('visibility', 'hidden');
+    curTab = id;
     $(".v-tab").removeClass("tab-selected")
     console.log($(".v-tab[tab-id='" + id +"']"));
     $(".v-tab[tab-id='" + id +"']").addClass("tab-selected")
@@ -347,8 +337,7 @@ onload = () => {
         }
     })[0]
     bTabs.tabs[index].name = e.srcElement.src;
-    $('.suggestions-tab').removeClass("act");
-    webSuggestionsData.suggestions = [];
+    console.log(e);
     console.log("Loading...");
   }
 
@@ -364,16 +353,9 @@ onload = () => {
         remote.getGlobal("ignoredDomains").urls = dList;
         console.log(remote.getGlobal("ignoredDomains").urls);
         break;
-      case -120:
-        disableNext = true;
-        e.srcElement.loadURL("file://" + __dirname + "/assets/error/105.html");
-        break;
-      case -105:
-        disableNext = true;
-        e.srcElement.loadURL("file://" + __dirname + "/assets/error/105.html");
-        break;
       default:
-
+        /*disableNext = true;
+        e.srcElement.loadURL("file://" + __dirname + "/assets/error/105.html");*/
     }
   }
 
@@ -397,11 +379,25 @@ onload = () => {
     })[0]
     console.log("Stopped Loading");
     var pageLoad = webview.getURL();
-    if(!incognitoMode)
-      addHistory(pageLoad)
-    var title = webview.getTitle();
-    bTabs.tabs[index].name = title;
-    document.title = title;
+    var historyEntry = {url: pageLoad, time: Date.now()}
+    storage.get('store', function(error, data) {
+      if (error) throw error;
+      if(data.history){
+        var rh = data;
+        rh.history.push(historyEntry);
+        storage.set('store', rh, function(error) {
+          if (error) throw error;
+
+        });
+      }
+      else{
+        storage.set('store', {history: [historyEntry]}, function(error) {
+          if (error) throw error;
+
+        });
+      }
+    });
+    bTabs.tabs[index].name = webview.getTitle();
     if(!disableNext){
       bTabs.tabs[index].tmpUrl = pageLoad;
       console.log(pageLoad);
@@ -424,115 +420,6 @@ onload = () => {
     })[0]
     return url;
   }
-
-  $('#searchBar').keypress(function (e) {
-    if (e.which == 13) {
-      var url = $('#searchBar').val();
-      var finUrl = url;
-
-      if((url.indexOf('.') < 0 && url.indexOf(':') < 0)|| (url.indexOf('.') == url.lenght || url.indexOf('.') == 0)){
-        if(incognitoMode){
-          finUrl = "https://www.duckduckgo.com/?q=" + url;
-        }
-        else {
-          finUrl = "https://www.google.com/#q=" + url;
-        }
-      }
-      else if(!url.startsWith("http://") && !url.startsWith("https://")){
-        finUrl = "https://" + url;
-      }
-      var index = $.map(bTabs.tabs, function(obj, index) {
-          if(obj.id == curTab) {
-              return index;
-          }
-      })[0]
-      bTabs.tabs[index].url = finUrl;
-
-    }
-  });
-
-  $('#backBtn').click(function (e) {
-    var webview = $('#' + curTab)[0];
-    webview.goBack();
-  });
-  $('#forwardBtn').click(function (e) {
-    var webview = $('#' + curTab)[0];
-    webview.goForward();
-  });
-  $('#refreshBtn').click(function (e) {
-    var webview = $('#' + curTab)[0];
-    webview.reload();
-  });
-  $('#homeBtn').click(function (e) {
-    var webview = $('#' + curTab)[0];
-    if (incognitoMode) {
-      webview.loadURL("https://www.duckduckgo.com");
-    }
-    else {
-      webview.loadURL("https://www.google.com");
-    }
-  });
-  $('.add-tab').click(function (e) {
-    if (incognitoMode) {
-      newTab("https://www.duckduckgo.com");
-    }
-    else {
-      newTab("https://www.google.com");
-    }
-  });
-
-  //bookmarks
-  $('.favBar').on('click', '.bookmark', function() {
-    var markUrl = $(this).attr('mark-url');
-    var index = $.map(bTabs.tabs, function(obj, index) {
-        if(obj.id == curTab) {
-            return index;
-        }
-    })[0]
-    bTabs.tabs[index].url = markUrl;
-  });
-
-
-  //suggestions
-  $('.suggestions-tab').on('click', '.suggestion', function() {
-    var selected = $(this).find('p').text();
-    $('#searchBar').val(selected);
-    var index = $.map(bTabs.tabs, function(obj, index) {
-        if(obj.id == curTab) {
-            return index;
-        }
-    })[0]
-    bTabs.tabs[index].url = "https://www.google.com/#q=" + selected;
-    $('.suggestions-tab').removeClass("act");
-    webSuggestionsData.suggestions = [];
-  });
-  $("#searchBar").on("paste keyup", function(e) {
-    if (e.which == 13 || e.which == 38 || e.which == 40 || incognitoMode) {
-      return;
-    }
-    if(!$('.suggestions-tab > .suggestion.sel').length){
-      $('.suggestions-tab > .suggestion:nth-child(1)').addClass('sel');
-    }
-    var value = $('#searchBar').val();
-    webSuggestionsData.search = value;
-    auto.getQuerySuggestions(value, function(err, suggestions) {
-      if (value == "") {
-        $('.suggestions-tab').removeClass("act");
-      }
-      if(value.indexOf('://') < 0){
-        var newArr = [];
-        for (var i = 0; i < suggestions.length; i++) {
-          if((suggestions[i].relevance >= 600 || i < 4) && i < 5){
-            newArr.push(suggestions[i].suggestion);
-          }
-        }
-        webSuggestionsData.suggestions = newArr;
-      }
-      if(webSuggestionsData.suggestions.length > 0){
-        $('.suggestions-tab').addClass("act");
-      }
-    })
-  });
 
   $('#searchBar').keydown(function (e) {
     $('.is-secure').hide();
@@ -557,29 +444,94 @@ onload = () => {
       }
     }
   });
+  $('#searchBar').keypress(function (e) {
 
 
-  //window
-  $( ".v-tabs" ).sortable({axis: "x", containment: "parent", tolerance: "pointer"});
-  $( ".v-tabs" ).disableSelection();
+    if (e.which == 13) {
 
-  $( ".left-items" ).sortable({axis: "x", containment: "parent"});
-  $( ".left-items" ).disableSelection();
+      var url = $('#searchBar').val();
+      var finUrl = url;
+      if((url.indexOf('.') < 0 && url.indexOf(':') < 0)|| (url.indexOf('.') == url.lenght || url.indexOf('.') == 0)){
+        finUrl = "https://duckduckgo.com/?q=" + url;
+      }
+      else if(!url.startsWith("http://") && !url.startsWith("https://")){
+        finUrl = "https://" + url;
+      }
+      var index = $.map(bTabs.tabs, function(obj, index) {
+          if(obj.id == curTab) {
+              return index;
+          }
+      })[0]
+      bTabs.tabs[index].url = finUrl;
 
-  $( ".favBar" ).sortable({axis: "x", containment: "parent"});
-  $( ".favBar" ).disableSelection();
+    }
+  });
+  $('#backBtn').click(function (e) {
+    var webview = $('#' + curTab)[0];
+    webview.goBack();
+  });
+  $('#forwardBtn').click(function (e) {
+    var webview = $('#' + curTab)[0];
+    webview.goForward();
+  });
+  $('#homeBtn').click(function (e) {
+    var webview = $('#' + curTab)[0];
+    webview.loadURL("https://duckduckgo.com/", {httpReferrer: "notyourbusiness"});
+  });
+  $('.add-tab').click(function (e) {
+    newTab("https://duckduckgo.com/");
+  });
+  $('.favBar').on('click', '.bookmark', function() {
+    var markUrl = $(this).attr('mark-url');
+    var index = $.map(bTabs.tabs, function(obj, index) {
+        if(obj.id == curTab) {
+            return index;
+        }
+    })[0]
+    bTabs.tabs[index].url = markUrl;
+  });
+  $('.v-tabs').on('click', '.v-tab', function() {
+    var tabId = $(this).attr('tab-id');
+    console.log(tabId);
+    displayTab(tabId);
+    curTab = tabId;
+  });
+  $('#refreshBtn').click(function (e) {
+    var webview = $('#' + curTab)[0];
+    webview.reload();
+  });
+  $('.v-tabs').on('click', '.tab-close', function() {
+    var id = $(this).parent().attr('tab-id');
+    if(bTabs.tabs.length <= 1){
+      var window = remote.getCurrentWindow();
+      window.close();
+    }
+    setTimeout(function() {
+      deleteTab(id);
+    }, 100);
+  });
 
-  function openPanel() {
-    $('.tab').width($(document).width() - $('#sidePanel').width() - 15);
-    $('#sidePanel').removeClass('close');
-    $('#sidePanel').addClass('open');
+  $('.v-tabs').on('mouseenter', '.v-tab', function() {
+    $(this).find('.tab-close').animate({ opacity: 0.99 }, 0);
+  });
+  $('.v-tabs').on('mouseleave', '.v-tab', function() {
+    $(this).find('.tab-close').animate({ opacity: 0.01 }, 0);
+  });
+
+  $('#historyBtn').click(function (e) {
+
+  });
+
+  newTab("https://duckduckgo.com/");
+
+  function makeid()
+  {
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    for( var i=0; i < 10; i++ )
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+    return text;
   }
-  function closePanel() {
-    $('.tab').width("100%");
-    $('#sidePanel').removeClass('open');
-    $('#sidePanel').addClass('close');
-  }
-
 
 
   $('.min-icon').click(function (e) {
@@ -607,99 +559,6 @@ onload = () => {
     })[0]
     bTabs.tabs.splice(index, 1);
     checkTabSize();
-    console.log(id);
-    console.log(curTab);
-    if (id == curTab) {
-      displayTab(bTabs.tabs[bTabs.tabs.length -1].id);
-    }
-    else {
-      displayTab(curTab);
-    }
-
+    displayTab(bTabs.tabs[bTabs.tabs.length-1].id);
   }
-
-
-  //history
-  storage.set('store', {history: []}, function(error) {
-    if (error) throw error;
-  });
-
-  function addHistory(url) {
-    var historyEntry = {url: url, time: Date.now()}
-    storage.get('store', function(error, data) {
-      if (error) throw error;
-      if(data.history){
-        var rh = data;
-        rh.history.push(historyEntry);
-        storage.set('store', rh, function(error) {
-          if (error) throw error;
-
-        });
-      }
-      else{
-        storage.set('store', {history: [historyEntry]}, function(error) {
-          if (error) throw error;
-
-        });
-      }
-    });
-  }
-
-  //Tabs
-  $('.v-tabs').on('click', '.v-tab', function(e) {
-    if(e.target != $(this).find('div.tab-close')[0]){
-      var tabId = $(this).attr('tab-id');
-      curTab = tabId;
-      console.log(tabId);
-      displayTab(tabId);
-    }
-  });
-
-  $('.v-tabs').on('click', '.tab-close', function() {
-    var id = $(this).parent().attr('tab-id');
-    if(bTabs.tabs.length <= 1){
-      var window = remote.getCurrentWindow();
-      window.close();
-    }
-    setTimeout(function() {
-      deleteTab(id);
-    }, 100);
-  });
-
-  $('.v-tabs').on('mouseenter', '.v-tab', function() {
-    $(this).find('.tab-close').animate({ opacity: 0.99 }, 0);
-  });
-  $('.v-tabs').on('mouseleave', '.v-tab', function() {
-    $(this).find('.tab-close').animate({ opacity: 0.01 }, 0);
-  });
-
-
-
-
-
-  var disableNext = false;
-
-  var incognitoMode = false;
-
-  var playerOffset = $('.progress-bar').position().left;
-  var playerClick = false;
-
-  var volumeOffset = $('.songVol').offset().left;
-  var volumeClick = false;
-
-  var curTab = "";
-
-  function makeid()
-  {
-    var text = "";
-    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    for( var i=0; i < 10; i++ )
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
-    return text;
-  }
-
-  newTab("https://www.google.com");
-
-  var player = $('#musicPlayer').get();
-  player[0].volume = 0.1;
 }

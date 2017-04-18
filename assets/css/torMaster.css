@@ -5,6 +5,13 @@ body{
   user-select: none;
   cursor: default;
 }
+.container{
+  background-color: #2a2626;
+  height: 100vh;
+}
+#incognitoBtn{
+  color: #c30f0f;
+}
 .topBar{
 
 }
@@ -35,14 +42,18 @@ body{
   margin-right: 10px;
 }
 .tab-selected{
-  background-color: #2a2626 !important;
+  background-color: #585858 !important;
+}
+.tab-selected > p{
+  color: #f7f7f7 !important;
 }
 .tab{
   width: 100%;
-  height: calc(100vh - 120px);
+  height: calc(100vh - 130px);
   position: absolute;
-  top: 120px;
+  top: 130px;
   right: 0;
+  background-color: #f7f7f7;
 }
 .hide-text{
   transform: skew(45deg);
@@ -51,24 +62,26 @@ body{
   position: absolute;
   right: 27px;
   top: 0;
-  background: linear-gradient(to right, rgba(255, 255, 255, 0),129px, #636363);
+  background: linear-gradient(to right, rgba(255, 255, 255, 0),129px, #eaeaea);
 }
 .tab-selected > .hide-text {
-    transform: skew(45deg);
-    width: 40px;
-    height: 30px;
-    position: absolute;
-    right: 27px;
-    top: 0;
-    background: linear-gradient(to right, rgba(255, 255, 255, 0),21px, #2a2626);
+  transform: skew(45deg);
+  width: 40px;
+  height: 30px;
+  position: absolute;
+  right: 27px;
+  top: 0;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0),21px, #585858);
 }
 .v-tab{
+  max-width: 185px;
   width: 185px;
   -webkit-transform: skew(-45deg);
-  background-color: #636363;
+  background-color: #eaeaea;
   height: 30px;
   float: left;
   margin: 0 5px;
+  overflow: hidden;
 }
 .v-tabs{
   margin-left: 150px;
@@ -83,7 +96,7 @@ body{
 }
 .v-tab > p{
   -webkit-transform: skew(45deg);
-  color: #e7e7e7;
+  color: #2a2626;
   text-align: left;
   margin-top: 7px;
   text-overflow: clip;
@@ -128,7 +141,7 @@ body{
   position: absolute;
   top: 0;
   right: 0;
-  color: #545151;
+  color: white;
 }
 .w-icons > div{
   float: left;
@@ -160,21 +173,13 @@ body{
   padding: 0 15px;
   top: 14px;
   left: 10px;
+  color: white;
 }
 .left-items > i{
   margin: 0 3px;
 }
 .suggestions-tab{
-  margin: 0px 194px;
-  width: calc(100% - 440px);
-  position: absolute;
-  top: 84px;
-  border-bottom: 1px solid #e8e8e8;
-  z-index: 9999;
-  background-color: white;
-  overflow: hidden;
-  height: 0;
-  display: none;
+  display: none !important;
 }
 .suggestion > i{
   float: left;
@@ -312,13 +317,14 @@ body{
 #searchBar{
   height: 24px;
   margin-top: 5px;
-  border-radius: 4px;
+  border-radius: 4px 5px 0px 4px;
   border: 0;
   min-width: 200px;
   padding-left: 25px;
-  padding-right: 100px;
-  width: calc(100% - 520px);
+  padding-right: 60px;
+  width: calc(100% - 480px);
   color: #4c4c4c;
+  outline-width: 0;
 }
 #searchBar.sec{
   padding-left: 25px;
@@ -401,15 +407,18 @@ body{
   top: 60px;
   font-size: 18px;
 }
+.song-title{
+  position: relative;
+}
 #sidePanel{
   position: absolute;
   top: 130px;
   background-color: #2a2626;
-  height: calc(100vh - 130px);
+  height: calc(100vh - 136px);
   width: 300px;
   left: 10px;
   z-index: 1;
-  border-radius: 7px 7px 0 0;
+  border-radius: 7px;
 }
 
 #sidePanel.open{
@@ -417,4 +426,14 @@ body{
 }
 #sidePanel.close{
   left: -300px;
+}
+.top-connector{
+  position: absolute;
+  top: 60px;
+  right: 202px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 26px 0 0 32px;
+  border-color: transparent transparent transparent #ffffff;
 }
