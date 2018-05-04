@@ -15,7 +15,7 @@
   "author": "Mantis Dev Team",
   "license": "Apache",
   "devDependencies": {
-    "electron": "~1.6.2",
+    "electron": "latest",
     "electron-winstaller": "^2.5.2"
   },
   "dependencies": {
