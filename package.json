@@ -15,8 +15,8 @@
   "author": "Mantis Dev Team",
   "license": "Apache",
   "devDependencies": {
-    "electron": "latest",
-    "electron-winstaller": "^2.5.2"
+    "electron": "^2.0.2",
+    "electron-winstaller": "latest"
   },
   "dependencies": {
     "check-proxy": "^0.1.3",
