@@ -245,6 +245,10 @@ onload = () => {
     $('#sidePanel').hasClass('open') ? closePanel() : openPanel();
   });
 
+  $('#musicBtn').click(function() {
+    $('.musicBar').hasClass('open') ? closeMusic() : openMusic();
+  });
+
   function enableIncognito() {
     incognitoMode = true;
     remote.require('./main').enableIncognito();
@@ -580,7 +584,20 @@ onload = () => {
     $('#sidePanel').addClass('close');
   }
 
-
+  function openMusic() {
+    $('.search-right').removeClass("full-bar")
+    $('.top-connector').removeClass("full-bar")
+    $('#searchBar').removeClass("full-bar")
+    $('.musicBar').removeClass('close');
+    $('.musicBar').addClass('open');
+  }
+  function closeMusic() {
+    $('.search-right').addClass("full-bar")
+    $('.top-connector').addClass("full-bar")
+    $('#searchBar').addClass("full-bar")
+    $('.musicBar').removeClass('open');
+    $('.musicBar').addClass('close');
+  }
 
   $('.min-icon').click(function (e) {
     var window = remote.getCurrentWindow();

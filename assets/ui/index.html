@@ -115,7 +115,7 @@
               <button type="button" class="button" id="bookmarkDeleteBtn" name="button">Delete</button>
             </div>
           </div>
-          <div class="musicBar">
+          <div class="musicBar open">
             <audio id="musicPlayer" :src="path" volume="0.1">
 
             </audio>
@@ -163,10 +163,10 @@
       </div>
       <div class="webBrowser">
         <div class="tab" v-for="tab in tabs" :web-id="tab.id">
-          <webview :id="tab.id" :src="tab.url" style="float: right; display:inline-flex; width:100%; height:100%" useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Spark/0.0.1 Chrome/56.0.2924.87 Safari/537.36"></webview>
+          <webview :id="tab.id" :src="tab.url" style="float: right; display:inline-flex; width:100%; height:100%" ></webview>
         </div>
       </div>
     </div>
   </body>
-  <script src="../js/browser2.js" charset="utf-8"></script>
+  <script src="../js/browser.js" charset="utf-8"></script>
 </html>

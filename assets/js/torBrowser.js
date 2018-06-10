@@ -169,6 +169,10 @@ onload = () => {
     $('#sidePanel').hasClass('open') ? closePanel() : openPanel();
   });
 
+  $('#musicBtn').click(function() {
+    $('#musicBar').hasClass('open') ? closeMusic() : openMusic();
+  });
+
   function setVolume(vl) {
     var player = $('#musicPlayer').get();
     player[0].volume = vl / 200;

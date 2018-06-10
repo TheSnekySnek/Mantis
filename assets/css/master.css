@@ -327,13 +327,20 @@ body{
 #searchBar.sec{
   padding-left: 25px;
 }
+#searchBar.full-bar{
+  width: calc(100% - 300px);
+}
 .fa-times{
   padding-right: 8.5px !important;
 }
 .musicBar{
+  display: block;
   float: right;
   color: white;
   width: 200px;
+}
+.musicBar.close{
+  display: none;
 }
 .musicBar p{
   float: left;
@@ -405,6 +412,9 @@ body{
   top: 60px;
   font-size: 18px;
 }
+.search-right.full-bar{
+  right: 60px;
+}
 .song-title{
   position: relative;
 }
@@ -434,6 +444,9 @@ body{
   border-style: solid;
   border-width: 26px 0 0 32px;
   border-color: transparent transparent transparent #ffffff;
+}
+.top-connector.full-bar{
+  right: 22px;
 }
 .bookmarkInf{
   display: none;
